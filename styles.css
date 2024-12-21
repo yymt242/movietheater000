@@ -1,0 +1,181 @@
+/* General Styles */
+* {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+
+      h2 {
+        font-size: 20px;
+        font-style: italic;
+        margin-bottom: 5px;
+        color: #f81fff; /* Pink Rose color */
+      }
+
+      body {
+        font-family: 'Arial', sans-serif;
+        background-color: #000; /* Change background to black */
+        color: #fff; /* Change text color to white */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+        overflow-x: hidden;
+      }
+
+      /* Name Input Section */
+      .name-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .name-section input {
+        padding: 12px 20px;
+        font-size: 18px;
+        border-radius: 20px;
+        border: 2px solid #ccc;
+        background-color: #fafafa;
+        margin-top: 10px;
+        width: 250px;
+        transition: all 0.3s ease;
+      }
+
+      .name-section input:focus {
+        outline: none;
+        border-color: #a8c0ff;
+      }
+
+      .name-section button {
+        padding: 12px 20px;
+        font-size: 18px;
+        cursor: pointer;
+        background-color: #f81fff; /* Pink Rose color */
+        color: white;
+        border-radius: 20px;
+        border: none;
+        margin-top: 10px;
+        transition: background-color 0.3s ease;
+      }
+
+      .name-section button:hover {
+        background-color: #ff3385; /* Darker pink for hover */
+      }
+
+      /* Video Player */
+      .video-container {
+        margin-top: 30px;
+      }
+
+      video {
+        width: 100%;
+        max-width: 600px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Emote Section */
+      .emote-section {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+      }
+
+      .emote-section button {
+        font-size: 32px;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+      }
+
+  /* Chat Room */
+#chat-room {
+        width: 90%;
+        max-width: 600px;
+        background-color: #630066; /* Dark background */
+        border-radius: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border: 2px solid #f81fff; /* Pink Rose border */
+      }
+
+      #chat-users {
+        margin: 10px;
+        font-weight: bolder;
+      }
+
+      .chat-messages {
+        height: 200px;
+        overflow-y: auto;
+        border: 2px solid #f81fff; /* Thicker Pink Rose border */
+        padding: 10px;
+        background-color: #333; /* Dark background */
+        border-radius: 8px;
+      }
+
+      .chat-messages div {
+        margin-bottom: 5px;
+        text-align: left; /* Align messages to the left */
+      }
+
+      .chat-messages div span.username {
+        font-weight: bold; /* Make the username bold */
+        color: #f81fff; /* Pink color */
+      }
+
+      .chat-messages div span.message {
+        color: white; /* Color for the message */
+      }
+
+      /* Chat input styles */
+      input[type="text"] {
+        width: 75%;
+        height: 35px;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #630066;
+        border-radius: 20px;
+        border: 2px solid #000000;
+        background-color: #fafafa;
+        margin: 10px;
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #f81fff;
+      }
+
+      button {
+        padding: 6px 15px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        background-color: #f700ff; /* Pink Rose color */
+        color: white;
+        border-radius: 20px;
+        border: white 2px solid;
+      }
+
+
+      /* Responsive Styles */
+      @media (max-width: 600px) {
+        body {
+          padding: 10px;
+        }
+
+        .video-container video {
+          width: 100%;
+        }
+
+        #chat-room {
+          width: 100%;
+        }
+
+        .emote-section {
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+      }

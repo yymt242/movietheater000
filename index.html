@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Chat Room</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Name Input Section (Visible only on first visit) -->
+  <div id="name-section" class="name-section">
+    <h2>Enter Your Name</h2>
+    <input type="text" id="userName" placeholder="Your Name">
+    <button onclick="setName()">Submit</button>
+  </div>
+
+  <!-- All other content (hidden initially) -->
+  <div id="main-content" class="main-content" style="display:none;">
+    <!-- Video Player Section -->
+    <div class="video-container">
+      <video id="videoPlayer" controls>
+        <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    <h2> Movie: Back To The Future (1985) </h2>
+    <h2> Watching on: Dec 22th, 2024 </h2>
+
+
+
+    <!-- Chat Room Section -->
+    <div id="chat-room">
+      <div id="chat-users"></div>
+      <div id="chat-messages" class="chat-messages"></div>
+      <input type="text" id="chatInput" placeholder="Type a message..." onkeyup="checkEnter(event)">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+    <!-- Emote Section -->
+    <div class="emote-section">
+        <button onclick="addEmote('❤️')">❤️</button>
+        <button onclick="addEmote('🥰')">🥰</button>
+        <button onclick="addEmote('😆')">😆</button>
+        <button onclick="addEmote('😂')">😂</button>
+        <button onclick="addEmote('😢')">😢</button>
+        <button onclick="addEmote('😭')">😭</button>
+        <button onclick="addEmote('🥺')">🥺</button>
+        <button onclick="addEmote('😱')">😱</button>
+      </div>
+  <script src="script.js"></script>
+</body>
+</html>
