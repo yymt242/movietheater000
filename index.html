@@ -88,35 +88,38 @@
     updateUserList();
   }
 
-  // Function to set the user's name and hide the name input section
-  window.setName = function setName() {
-    userName = document.getElementById('userName').value.trim();
-    if (userName) {
-      localStorage.setItem('userName', userName);
-      document.getElementById('name-section').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
+// Set the user's name and handle disconnect properly
+window.setName = function setName() {
+  userName = document.getElementById('userName').value.trim();
+  if (userName) {
+    localStorage.setItem('userName', userName);
+    document.getElementById('name-section').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
 
-      // Add user to Firebase /users node
-      set(ref(db, `users/${userName}`), {
-        name: userName
-      }).then(() => {
-        updateUserList(); // Update the user list after adding the user to Firebase
-      }).catch((error) => {
-        console.error("Error adding user to Firebase:", error);
-      });
-    }
-  };
-
-  // Function to update the user list display
-  function updateUserList() {
-    const chatUsersDiv = document.getElementById('chat-users');
-    // Listen for changes to the users node in Firebase
-    onValue(ref(db, 'users'), (snapshot) => {
-      const data = snapshot.val();
-      const users = data ? Object.keys(data) : []; // Get user names from the Firebase data
-      chatUsersDiv.innerHTML = `Users in chat: ${users.join(', ')}`;
+    // Add user to Firebase /users node
+    const userRef = ref(db, `users/${userName}`);
+    set(userRef, {
+      name: userName
+    }).then(() => {
+      // Ensure to remove user when they disconnect
+      userRef.onDisconnect().remove();
+      updateUserList(); // Update the user list after adding the user to Firebase
+    }).catch((error) => {
+      console.error("Error adding user to Firebase:", error);
     });
   }
+};
+
+
+  function updateUserList() {
+  const chatUsersDiv = document.getElementById('chat-users');
+  // Listen for changes to the users node in Firebase
+  onValue(ref(db, 'users'), (snapshot) => {
+    const data = snapshot.val();
+    const users = data ? Object.keys(data) : []; // Get user names from the Firebase data
+    chatUsersDiv.innerHTML = `Users in chat: ${users.join(', ')}`;
+  });
+}
 
 
   // Function to send a chat message
@@ -304,14 +307,6 @@
     }
   });
 
-  // Handle user removal from Firebase on tab/window close
-  window.addEventListener('unload', function() {
-  if (userName) {
-    remove(ref(db, `users/${userName}`)).catch((error) => {
-      console.error('Error removing user from Firebase on unload:', error);
-    });
-  }
-});
 
 
 </script>
