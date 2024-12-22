@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Video Chat Room</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <!-- Name Input Section (Visible only on first visit) -->
   <div id="name-section" class="name-section">
@@ -36,17 +38,17 @@
       <div id="chat-users"></div>
     </div>
 
-        <!-- Emote Section -->
-        <div class="emote-section">
-          <button onclick="addEmote('❤️')">❤️</button>
-          <button onclick="addEmote('🥰')">🥰</button>
-          <button onclick="addEmote('😆')">😆</button>
-          <button onclick="addEmote('😂')">😂</button>
-          <button onclick="addEmote('😢')">😢</button>
-          <button onclick="addEmote('😭')">😭</button>
-          <button onclick="addEmote('🥺')">🥺</button>
-          <button onclick="addEmote('😱')">😱</button>
-        </div>
+    <!-- Emote Section -->
+    <div class="emote-section">
+      <button onclick="addEmote('❤️')">❤️</button>
+      <button onclick="addEmote('🥰')">🥰</button>
+      <button onclick="addEmote('😆')">😆</button>
+      <button onclick="addEmote('😂')">😂</button>
+      <button onclick="addEmote('😢')">😢</button>
+      <button onclick="addEmote('😭')">😭</button>
+      <button onclick="addEmote('🥺')">🥺</button>
+      <button onclick="addEmote('😱')">😱</button>
+    </div>
   </div>
 
   <!-- Script -->
@@ -58,6 +60,7 @@
     const firebaseConfig = {
       apiKey: "AIzaSyBtdFvQmqBgb7cZ2Jl6kplxpcqtZrU4Cqk",
       authDomain: "movietheater001-4e8c6.firebaseapp.com",
+      databaseURL: "https://movietheater001-4e8c6-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "movietheater001-4e8c6",
       storageBucket: "movietheater001-4e8c6.firebasestorage.app",
       messagingSenderId: "285886982565",
@@ -102,59 +105,53 @@
       chatUsersDiv.innerHTML = `Users in chat: ${usersInChat.join(', ')}`;
     }
 
-    // Function to send a chat message
-    window.sendMessage = function sendMessage() {
-      const message = document.getElementById('chatInput').value.trim();
-      if (message) {
-        // Send message to Firebase
-        push(ref(db, 'messages'), {
-          userName: userName,
-          message: message,
-          timestamp: Date.now()
-        });
-
-        // Display the message locally
-        const chatMessagesDiv = document.getElementById('chat-messages');
-        const newMessage = document.createElement('div');
-        const usernameSpan = document.createElement('span');
-        usernameSpan.classList.add('username');
-        usernameSpan.textContent = `${userName}: `;
-        const messageSpan = document.createElement('span');
-        messageSpan.classList.add('message');
-        messageSpan.textContent = message;
-
-        newMessage.appendChild(usernameSpan);
-        newMessage.appendChild(messageSpan);
-        chatMessagesDiv.appendChild(newMessage);
-
-        document.getElementById('chatInput').value = '';
-        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-      }
-    };
-
-    // Listen for new messages in Firebase
-    onValue(ref(db, 'messages'), function(snapshot) {
-      const data = snapshot.val();
-      const chatMessagesDiv = document.getElementById('chat-messages');
-      chatMessagesDiv.innerHTML = ''; // Clear the chat before re-rendering
-      for (let key in data) {
-        const messageData = data[key];
-        const newMessage = document.createElement('div');
-        const usernameSpan = document.createElement('span');
-        usernameSpan.classList.add('username');
-        usernameSpan.textContent = `${messageData.userName}: `;
-        const messageSpan = document.createElement('span');
-        messageSpan.classList.add('message');
-        messageSpan.textContent = messageData.message;
-
-        newMessage.appendChild(usernameSpan);
-        newMessage.appendChild(messageSpan);
-        chatMessagesDiv.appendChild(newMessage);
-      }
+ // Function to send a chat message
+window.sendMessage = function sendMessage() {
+  const message = document.getElementById('chatInput').value.trim();
+  if (message) {
+    // Send message to Firebase
+    push(ref(db, 'messages'), {
+      userName: userName,
+      message: message,
+      timestamp: Date.now()
     });
 
+    // Clear the input field
+    document.getElementById('chatInput').value = '';
+  }
+};
+
+// Listen for new messages in Firebase
+onValue(ref(db, 'messages'), function(snapshot) {
+  const data = snapshot.val();
+  const chatMessagesDiv = document.getElementById('chat-messages');
+  chatMessagesDiv.innerHTML = '';  // Clear previous messages before re-rendering
+
+  // Loop through messages and display them
+  for (let key in data) {
+    const messageData = data[key];
+
+    // Create message elements
+    const newMessage = document.createElement('div');
+    const usernameSpan = document.createElement('span');
+    usernameSpan.classList.add('username');
+    usernameSpan.textContent = `${messageData.userName}: `;
+    const messageSpan = document.createElement('span');
+    messageSpan.classList.add('message');
+    messageSpan.textContent = messageData.message;
+
+    // Append elements
+    newMessage.appendChild(usernameSpan);
+    newMessage.appendChild(messageSpan);
+    chatMessagesDiv.appendChild(newMessage);
+  }
+
+  // Scroll to the latest message
+  chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+});
+
     // Function to check if 'Enter' is pressed to send message
-    function checkEnter(event) {
+    window.checkEnter = function checkEnter(event) {
       if (event.key === 'Enter') {
         sendMessage();
       }
@@ -206,38 +203,38 @@
 
     // Listen for new emoticons
     onValue(ref(db, 'emotes'), function(snapshot) {
-      const data = snapshot.val();
-      const emoteElement = document.createElement('span');
-      emoteElement.textContent = data.emote;
-      emoteElement.classList.add('emote');
-      document.body.appendChild(emoteElement);
+  const data = snapshot.val();
+  const emoteElement = document.createElement('span');
+  emoteElement.textContent = data.emote;
+  emoteElement.classList.add('emote');
+  document.body.appendChild(emoteElement);
 
-      // Apply floating effect (same as your existing code)
-      emoteElement.style.position = 'absolute';
-      emoteElement.style.fontSize = '100px';
-      emoteElement.style.transition = 'none';
-      emoteElement.style.opacity = '1';
+  // Apply floating effect (same as your existing code)
+  emoteElement.style.position = 'absolute';
+  emoteElement.style.fontSize = '100px';
+  emoteElement.style.transition = 'none';
+  emoteElement.style.opacity = '1';
 
-      const maxX = window.innerWidth - 100;
-      const maxY = window.innerHeight - 200;
-      const randomX = Math.random() * maxX;
-      const randomY = Math.random() * maxY;
+  const maxX = window.innerWidth - 100;
+  const maxY = window.innerHeight - 200;
+  const randomX = Math.random() * maxX;
+  const randomY = Math.random() * maxY;
 
-      emoteElement.style.left = `${randomX}px`;
-      emoteElement.style.top = `${randomY}px`;
+  emoteElement.style.left = `${randomX}px`;
+  emoteElement.style.top = `${randomY}px`;
 
-      emoteElement.offsetHeight;
-      emoteElement.style.transition = 'transform 1s, opacity 1s';
+  emoteElement.offsetHeight;
+  emoteElement.style.transition = 'transform 1s, opacity 1s';
 
-      setTimeout(() => {
-        emoteElement.style.transform = 'translateY(-100px)';
-        emoteElement.style.opacity = '0';
-      }, 10);
+  setTimeout(() => {
+    emoteElement.style.transform = 'translateY(-100px)';
+    emoteElement.style.opacity = '0';
+  }, 10);
 
-      setTimeout(() => {
-        document.body.removeChild(emoteElement);
-      }, 1000);
-    });
+  setTimeout(() => {
+    document.body.removeChild(emoteElement);
+  }, 1000);
+});
 
     // Video state handling
     const videoPlayer = document.getElementById('videoPlayer');
@@ -280,4 +277,5 @@
 
 
 </body>
+
 </html>
