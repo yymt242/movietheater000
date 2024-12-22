@@ -74,7 +74,7 @@
     const db = getDatabase(app);  // Initialize Realtime Database
 
 
-  // Variables to keep track of the user's name and current chat participants
+  // Variables to keep track of the user's name
   let userName = localStorage.getItem('userName');
 
   // Check if the user has already entered their name
@@ -104,7 +104,7 @@
         console.error("Error adding user to Firebase:", error);
       });
     }
-  }
+  };
 
   // Function to update the user list display
   function updateUserList() {
@@ -116,6 +116,7 @@
       chatUsersDiv.innerHTML = `Users in chat: ${users.join(', ')}`;
     });
   }
+
 
   // Function to send a chat message
   window.sendMessage = function sendMessage() {
@@ -301,6 +302,14 @@
       }
     }
   });
+
+  // Handle user removal from Firebase on tab/window close
+  window.onbeforeunload = function() {
+    if (userName) {
+      remove(ref(db, `users/${userName}`));
+    }
+  };
+
 </script>
 
 
