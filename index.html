@@ -21,7 +21,7 @@
     <!-- Video Player Section -->
     <div class="video-container">
       <video id="videoPlayer" controls>
-        <source src="./Back.to.the.Future.1985.mp4" type="video/mp4">
+        <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
     </div>
@@ -158,82 +158,58 @@ onValue(ref(db, 'messages'), function(snapshot) {
     }
 
     // Function to send and display emotes
-    window.addEmote = function addEmote(emote) {
-      // Send emote to Firebase
-      push(ref(db, 'emotes'), {
-        emote: emote,
-        userName: userName,
-        timestamp: Date.now()
-      });
+ // Function to send and display emotes
+window.addEmote = function addEmote(emote) {
+  // Send emote to Firebase
+  push(ref(db, 'emotes'), {
+    emote: emote,
+    userName: userName,
+    timestamp: Date.now()
+  });
+};
 
-      // Display the emote locally
-      const emoteElement = document.createElement('span');
-      emoteElement.textContent = emote;
-      emoteElement.classList.add('emote');
-      document.body.appendChild(emoteElement);
-
-      // Apply floating effect (same as your existing code)
-      emoteElement.style.position = 'absolute';
-      emoteElement.style.fontSize = '100px';
-      emoteElement.style.transition = 'none';
-      emoteElement.style.opacity = '1';
-
-      // Random positioning
-      const maxX = window.innerWidth - 100;
-      const maxY = window.innerHeight - 200;
-      const randomX = Math.random() * maxX;
-      const randomY = Math.random() * maxY;
-
-      emoteElement.style.left = `${randomX}px`;
-      emoteElement.style.top = `${randomY}px`;
-
-      // Re-enable transition for floating effect
-      emoteElement.offsetHeight;
-      emoteElement.style.transition = 'transform 1s, opacity 1s';
-
-      setTimeout(() => {
-        emoteElement.style.transform = 'translateY(-100px)';
-        emoteElement.style.opacity = '0';
-      }, 10);
-
-      setTimeout(() => {
-        document.body.removeChild(emoteElement);
-      }, 1000);
-    };
-
-    // Listen for new emoticons
-    onValue(ref(db, 'emotes'), function(snapshot) {
+// Listen for new emoticons and display them on all devices
+onValue(ref(db, 'emotes'), function(snapshot) {
   const data = snapshot.val();
-  const emoteElement = document.createElement('span');
-  emoteElement.textContent = data.emote;
-  emoteElement.classList.add('emote');
-  document.body.appendChild(emoteElement);
 
-  // Apply floating effect (same as your existing code)
-  emoteElement.style.position = 'absolute';
-  emoteElement.style.fontSize = '100px';
-  emoteElement.style.transition = 'none';
-  emoteElement.style.opacity = '1';
+  // Loop through all emotes and create them
+  for (let key in data) {
+    const emoteData = data[key];
 
-  const maxX = window.innerWidth - 100;
-  const maxY = window.innerHeight - 200;
-  const randomX = Math.random() * maxX;
-  const randomY = Math.random() * maxY;
+    // Create the emote element
+    const emoteElement = document.createElement('span');
+    emoteElement.textContent = emoteData.emote;
+    emoteElement.classList.add('emote');
+    document.body.appendChild(emoteElement);
 
-  emoteElement.style.left = `${randomX}px`;
-  emoteElement.style.top = `${randomY}px`;
+    // Apply floating effect (same as your existing code)
+    emoteElement.style.position = 'absolute';
+    emoteElement.style.fontSize = '100px';
+    emoteElement.style.transition = 'none';
+    emoteElement.style.opacity = '1';
 
-  emoteElement.offsetHeight;
-  emoteElement.style.transition = 'transform 1s, opacity 1s';
+    // Random positioning
+    const maxX = window.innerWidth - 100;
+    const maxY = window.innerHeight - 200;
+    const randomX = Math.random() * maxX;
+    const randomY = Math.random() * maxY;
 
-  setTimeout(() => {
-    emoteElement.style.transform = 'translateY(-100px)';
-    emoteElement.style.opacity = '0';
-  }, 10);
+    emoteElement.style.left = `${randomX}px`;
+    emoteElement.style.top = `${randomY}px`;
 
-  setTimeout(() => {
-    document.body.removeChild(emoteElement);
-  }, 1000);
+    // Re-enable transition for floating effect
+    emoteElement.offsetHeight;
+    emoteElement.style.transition = 'transform 1s, opacity 1s';
+
+    setTimeout(() => {
+      emoteElement.style.transform = 'translateY(-100px)';
+      emoteElement.style.opacity = '0';
+    }, 10);
+
+    setTimeout(() => {
+      document.body.removeChild(emoteElement);
+    }, 1000);
+  }
 });
 
     // Video state handling
