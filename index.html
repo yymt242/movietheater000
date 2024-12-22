@@ -221,64 +221,86 @@ onValue(ref(db, 'emotes'), function(snapshot) {
 });
 
 
+// First, initialize the video player element
+const videoPlayer = document.getElementById('videoPlayer');
 
 // Initialize a variable to track the previous state of the video
 let previousVideoState = { paused: videoPlayer.paused, currentTime: videoPlayer.currentTime };
 
-// Video state handling
-const videoPlayer = document.getElementById('videoPlayer');
-
 // Send video state to Firebase only when it changes
 videoPlayer.addEventListener('play', () => {
+  console.log('Video play triggered');
   if (previousVideoState.paused !== false) {
     set(ref(db, 'videoState'), {
       paused: false,
       currentTime: videoPlayer.currentTime
+    }).then(() => {
+      console.log('Video state updated to playing');
+    }).catch((error) => {
+      console.error('Error updating video state on play:', error);
     });
+
     previousVideoState = { paused: false, currentTime: videoPlayer.currentTime }; // Update the previous state
   }
 });
 
 videoPlayer.addEventListener('pause', () => {
+  console.log('Video pause triggered');
   if (previousVideoState.paused !== true) {
     set(ref(db, 'videoState'), {
       paused: true,
       currentTime: videoPlayer.currentTime
+    }).then(() => {
+      console.log('Video state updated to paused');
+    }).catch((error) => {
+      console.error('Error updating video state on pause:', error);
     });
+
     previousVideoState = { paused: true, currentTime: videoPlayer.currentTime }; // Update the previous state
   }
 });
 
 videoPlayer.addEventListener('timeupdate', () => {
-  // Only send the current time to Firebase if it has changed significantly
+  console.log('Timeupdate triggered');
+  // Only send the current time to Firebase if it has changed significantly (e.g., more than 1 second)
   if (Math.abs(videoPlayer.currentTime - previousVideoState.currentTime) > 1) {
     set(ref(db, 'videoState'), {
       paused: videoPlayer.paused,
       currentTime: videoPlayer.currentTime
+    }).then(() => {
+      console.log('Video state updated with new time');
+    }).catch((error) => {
+      console.error('Error updating video state on timeupdate:', error);
     });
+
     previousVideoState = { paused: videoPlayer.paused, currentTime: videoPlayer.currentTime }; // Update the previous state
   }
 });
 
-// Listen for video state updates
+// Listen for video state updates from Firebase
 onValue(ref(db, 'videoState'), (snapshot) => {
   const data = snapshot.val();
   if (data) {
-    // If the current state is different from the Firebase state, update the video
-    if (data.paused !== videoPlayer.paused) {
-      if (data.paused) {
+    const { paused, currentTime } = data;
+
+    // Only update the video player if the state is different from the current state
+    if (paused !== videoPlayer.paused) {
+      if (paused) {
         videoPlayer.pause();
       } else {
         videoPlayer.play();
       }
+      previousVideoState.paused = paused; // Update local state
     }
 
-    // If the current time is different from the Firebase state, update the video position
-    if (Math.abs(data.currentTime - videoPlayer.currentTime) > 1) {
-      videoPlayer.currentTime = data.currentTime;
+    // If the current time is different from the local state, update the video position
+    if (Math.abs(currentTime - videoPlayer.currentTime) > 1) {
+      videoPlayer.currentTime = currentTime;
+      previousVideoState.currentTime = currentTime; // Update local state
     }
   }
 });
+
 
 
   </script>
