@@ -229,13 +229,10 @@ let previousVideoState = { paused: videoPlayer.paused, currentTime: videoPlayer.
 
 // Send video state to Firebase only when it changes
 videoPlayer.addEventListener('play', () => {
-  console.log('Video play triggered');
   if (previousVideoState.paused !== false) {
     set(ref(db, 'videoState'), {
       paused: false,
       currentTime: videoPlayer.currentTime
-    }).then(() => {
-      console.log('Video state updated to playing');
     }).catch((error) => {
       console.error('Error updating video state on play:', error);
     });
@@ -245,13 +242,10 @@ videoPlayer.addEventListener('play', () => {
 });
 
 videoPlayer.addEventListener('pause', () => {
-  console.log('Video pause triggered');
   if (previousVideoState.paused !== true) {
     set(ref(db, 'videoState'), {
       paused: true,
       currentTime: videoPlayer.currentTime
-    }).then(() => {
-      console.log('Video state updated to paused');
     }).catch((error) => {
       console.error('Error updating video state on pause:', error);
     });
@@ -261,14 +255,11 @@ videoPlayer.addEventListener('pause', () => {
 });
 
 videoPlayer.addEventListener('timeupdate', () => {
-  console.log('Timeupdate triggered');
   // Only send the current time to Firebase if it has changed significantly (e.g., more than 1 second)
   if (Math.abs(videoPlayer.currentTime - previousVideoState.currentTime) > 1) {
     set(ref(db, 'videoState'), {
       paused: videoPlayer.paused,
       currentTime: videoPlayer.currentTime
-    }).then(() => {
-      console.log('Video state updated with new time');
     }).catch((error) => {
       console.error('Error updating video state on timeupdate:', error);
     });
