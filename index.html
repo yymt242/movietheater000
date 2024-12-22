@@ -21,7 +21,8 @@
     <!-- Video Player Section -->
     <div class="video-container">
       <video id="videoPlayer" controls>
-        <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+        <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+          type="video/mp4">
         Your browser does not support the video tag.
       </video>
     </div>
@@ -55,7 +56,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
-    import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+    import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBtdFvQmqBgb7cZ2Jl6kplxpcqtZrU4Cqk",
@@ -305,10 +306,11 @@
 
   // Handle user removal from Firebase on tab/window close
   window.onbeforeunload = function() {
-    if (userName) {
-      remove(ref(db, `users/${userName}`));
-    }
-  };
+  if (userName) {
+    remove(ref(db, `users/${userName}`));
+  }
+};
+
 
 </script>
 
