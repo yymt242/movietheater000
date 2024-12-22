@@ -21,8 +21,7 @@
     <!-- Video Player Section -->
     <div class="video-container">
       <video id="videoPlayer" controls>
-        <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-          type="video/mp4">
+        <source src="https://www.dropbox.com/scl/fi/qavnpeh1weo5ykg26g4ih/Back.to.the.Future.1985.mp4?rlkey=up1fx7ujkjk87eeh4kjheex5r&st=p81rwikn&dl=1" type="video/mp4">
         Your browser does not support the video tag.
       </video>
     </div>
@@ -56,7 +55,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
-    import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+    import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBtdFvQmqBgb7cZ2Jl6kplxpcqtZrU4Cqk",
@@ -74,351 +73,228 @@
     const analytics = getAnalytics(app);
     const db = getDatabase(app);  // Initialize Realtime Database
 
+    // Variables to keep track of the user's name and current chat participants
+    let userName = localStorage.getItem('userName');
+    let usersInChat = userName ? [userName] : [];
 
+    // Check if the user has already entered their name
+    if (!userName) {
+      document.getElementById('name-section').style.display = 'flex';
+      document.getElementById('main-content').style.display = 'none';
+    } else {
+      document.getElementById('name-section').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      updateUserList();
+    }
 
-  // Variables to keep track of the user's name
-  let userName = localStorage.getItem('userName');
-
-  // Check if the user has already entered their name
-  if (!userName) {
-    document.getElementById('name-section').style.display = 'flex';
-    document.getElementById('main-content').style.display = 'none';
-  } else {
-    document.getElementById('name-section').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    updateUserList();
-<<<<<<< HEAD
-<<<<<<< HEAD
-    // Ensure the user is added again after page reload
-    const userRef = ref(db, `users/${userName}`);
-    userRef.once('value', (snapshot) => {
-      if (!snapshot.exists()) {
-        // If the user doesn't exist in the database, add them
-        set(userRef, { name: userName }).catch((error) => {
-          console.error("Error adding user to Firebase:", error);
-        });
+    // Function to set the user's name and hide the name input section
+    window.setName = function setName() {
+      userName = document.getElementById('userName').value.trim();
+      if (userName) {
+        localStorage.setItem('userName', userName);
+        document.getElementById('name-section').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        usersInChat.push(userName);
+        updateUserList();
       }
-    });
-  }
-
-  // Function to set the user's name and hide the name input section
-  window.setName = function setName() {
-    userName = document.getElementById('userName').value.trim();
-    if (userName) {
-      localStorage.setItem('userName', userName);
-      document.getElementById('name-section').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-
-      // Add user to Firebase /users node
-      const userRef = ref(db, `users/${userName}`);
-      set(userRef, {
-        name: userName
-      }).then(() => {
-        // Set onDisconnect to remove the user when they disconnect
-        userRef.onDisconnect().remove();
-        updateUserList(); // Update the user list after adding the user to Firebase
-      }).catch((error) => {
-        console.error("Error adding user to Firebase:", error);
-      });
-    }
-  };
-
-  // Function to update the user list display
-  function updateUserList() {
-    const chatUsersDiv = document.getElementById('chat-users');
-    // Listen for changes to the users node in Firebase
-    onValue(ref(db, 'users'), (snapshot) => {
-      const data = snapshot.val();
-      const users = data ? Object.keys(data) : []; // Get user names from the Firebase data
-      chatUsersDiv.innerHTML = `Users in chat: ${users.join(', ')}`;
-    });
-  }
-=======
-  }
-=======
-  }
-
-// Set the user's name and handle disconnect properly
-window.setName = function setName() {
-  userName = document.getElementById('userName').value.trim();
-  if (userName) {
-    localStorage.setItem('userName', userName);
-    document.getElementById('name-section').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-
-    // Add user to Firebase /users node
-    const userRef = ref(db, `users/${userName}`);
-    set(userRef, {
-      name: userName
-    }).then(() => {
-      // Ensure to remove user when they disconnect
-      userRef.onDisconnect().remove();
-      updateUserList(); // Update the user list after adding the user to Firebase
-    }).catch((error) => {
-      console.error("Error adding user to Firebase:", error);
-    });
-  }
-<<<<<<< HEAD
->>>>>>> parent of 225a902 (set and remove user)
-=======
-};
-
-
-  function updateUserList() {
-  const chatUsersDiv = document.getElementById('chat-users');
-  // Listen for changes to the users node in Firebase
-  onValue(ref(db, 'users'), (snapshot) => {
-    const data = snapshot.val();
-    const users = data ? Object.keys(data) : []; // Get user names from the Firebase data
-    chatUsersDiv.innerHTML = `Users in chat: ${users.join(', ')}`;
-  });
-}
->>>>>>> parent of e5c3ef0 (Revert "set and remove user")
-
-  // Function to set the user's name and hide the name input section
-  window.setName = function setName() {
-    userName = document.getElementById('userName').value.trim();
-    if (userName) {
-      localStorage.setItem('userName', userName);
-      document.getElementById('name-section').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-
-      // Add user to Firebase /users node
-      set(ref(db, `users/${userName}`), {
-        name: userName
-      }).then(() => {
-        updateUserList(); // Update the user list after adding the user to Firebase
-      }).catch((error) => {
-        console.error("Error adding user to Firebase:", error);
-      });
-    }
-  };
-
-  // Function to update the user list display
-  function updateUserList() {
-    const chatUsersDiv = document.getElementById('chat-users');
-    // Listen for changes to the users node in Firebase
-    onValue(ref(db, 'users'), (snapshot) => {
-      const data = snapshot.val();
-      const users = data ? Object.keys(data) : []; // Get user names from the Firebase data
-      chatUsersDiv.innerHTML = `Users in chat: ${users.join(', ')}`;
-    });
-  }
->>>>>>> parent of 225a902 (set and remove user)
-
-  // Listen for window/tab unload to clean up
-  window.addEventListener('beforeunload', () => {
-    if (userName) {
-      const userRef = ref(db, `users/${userName}`);
-      userRef.onDisconnect().remove(); // Ensure user is removed on disconnect
-    }
-  });
-
-  // Function to send a chat message
-  window.sendMessage = function sendMessage() {
-    const message = document.getElementById('chatInput').value.trim();
-    if (message) {
-      // Send message to Firebase
-      push(ref(db, 'messages'), {
-        userName: userName,
-        message: message,
-        timestamp: Date.now()
-      });
-
-      // Clear the input field
-      document.getElementById('chatInput').value = '';
-    }
-  };
-
-  // Listen for new messages in Firebase
-  onValue(ref(db, 'messages'), function(snapshot) {
-    const data = snapshot.val();
-    const chatMessagesDiv = document.getElementById('chat-messages');
-    chatMessagesDiv.innerHTML = '';  // Clear previous messages before re-rendering
-
-    // Loop through messages and display them
-    for (let key in data) {
-      const messageData = data[key];
-
-      // Create message elements
-      const newMessage = document.createElement('div');
-      const usernameSpan = document.createElement('span');
-      usernameSpan.classList.add('username');
-      usernameSpan.textContent = `${messageData.userName}: `;
-      const messageSpan = document.createElement('span');
-      messageSpan.classList.add('message');
-      messageSpan.textContent = messageData.message;
-
-      // Append elements
-      newMessage.appendChild(usernameSpan);
-      newMessage.appendChild(messageSpan);
-      chatMessagesDiv.appendChild(newMessage);
     }
 
-    // Scroll to the latest message
-    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-  });
-
-  // Function to check if 'Enter' is pressed to send message
-  window.checkEnter = function checkEnter(event) {
-    if (event.key === 'Enter') {
-      sendMessage();
+    // Function to update the user list display
+    function updateUserList() {
+      const chatUsersDiv = document.getElementById('chat-users');
+      chatUsersDiv.innerHTML = `Users in chat: ${usersInChat.join(', ')}`;
     }
-  }
 
-  // Function to send and display emotes
-  window.addEmote = function addEmote(emote) {
-    // Send emote to Firebase with timestamp to identify the latest one
-    push(ref(db, 'emotes'), {
-      emote: emote,
+ // Function to send a chat message
+window.sendMessage = function sendMessage() {
+  const message = document.getElementById('chatInput').value.trim();
+  if (message) {
+    // Send message to Firebase
+    push(ref(db, 'messages'), {
       userName: userName,
+      message: message,
       timestamp: Date.now()
     });
-  };
 
-  // Listen for new emoticons and display only the latest one on all devices
-  onValue(ref(db, 'emotes'), function(snapshot) {
-    const data = snapshot.val();
-    const chatMessagesDiv = document.getElementById('chat-messages'); // Assuming you have a container for emoticons
+    // Clear the input field
+    document.getElementById('chatInput').value = '';
+  }
+};
 
-    // Remove previous emoticons
-    const existingEmotes = document.querySelectorAll('.emote');
-    existingEmotes.forEach(emote => emote.remove());
+// Listen for new messages in Firebase
+onValue(ref(db, 'messages'), function(snapshot) {
+  const data = snapshot.val();
+  const chatMessagesDiv = document.getElementById('chat-messages');
+  chatMessagesDiv.innerHTML = '';  // Clear previous messages before re-rendering
 
-    // Find the most recent emote by timestamp
-    let latestEmote = null;
-    for (let key in data) {
-      latestEmote = data[key]; // Get the latest emote (by timestamp)
-    }
+  // Loop through messages and display them
+  for (let key in data) {
+    const messageData = data[key];
 
-    if (latestEmote) {
-      // Create the emote element
-      const emoteElement = document.createElement('span');
-      emoteElement.textContent = latestEmote.emote;
-      emoteElement.classList.add('emote');
-      document.body.appendChild(emoteElement);
+    // Create message elements
+    const newMessage = document.createElement('div');
+    const usernameSpan = document.createElement('span');
+    usernameSpan.classList.add('username');
+    usernameSpan.textContent = `${messageData.userName}: `;
+    const messageSpan = document.createElement('span');
+    messageSpan.classList.add('message');
+    messageSpan.textContent = messageData.message;
 
-      // Apply floating effect (same as your existing code)
-      emoteElement.style.position = 'absolute';
-      emoteElement.style.fontSize = '100px';
-      emoteElement.style.transition = 'none';
-      emoteElement.style.opacity = '1';
+    // Append elements
+    newMessage.appendChild(usernameSpan);
+    newMessage.appendChild(messageSpan);
+    chatMessagesDiv.appendChild(newMessage);
+  }
 
-      // Random positioning
-      const maxX = window.innerWidth - 100;
-      const maxY = window.innerHeight - 200;
-      const randomX = Math.random() * maxX;
-      const randomY = Math.random() * maxY;
+  // Scroll to the latest message
+  chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+});
 
-      emoteElement.style.left = `${randomX}px`;
-      emoteElement.style.top = `${randomY}px`;
-
-      // Re-enable transition for floating effect
-      emoteElement.offsetHeight;
-      emoteElement.style.transition = 'transform 1s, opacity 1s';
-
-      setTimeout(() => {
-        emoteElement.style.transform = 'translateY(-100px)';
-        emoteElement.style.opacity = '0';
-      }, 10);
-
-      setTimeout(() => {
-        document.body.removeChild(emoteElement);
-      }, 1000);
-    }
-  });
-
-  // First, initialize the video player element
-  const videoPlayer = document.getElementById('videoPlayer');
-
-  // Initialize a variable to track the previous state of the video
-  let previousVideoState = { paused: videoPlayer.paused, currentTime: videoPlayer.currentTime };
-
-  // Send video state to Firebase only when it changes
-  videoPlayer.addEventListener('play', () => {
-    if (previousVideoState.paused !== false) {
-      set(ref(db, 'videoState'), {
-        paused: false,
-        currentTime: videoPlayer.currentTime
-      }).catch((error) => {
-        console.error('Error updating video state on play:', error);
-      });
-
-      previousVideoState = { paused: false, currentTime: videoPlayer.currentTime }; // Update the previous state
-    }
-  });
-
-  videoPlayer.addEventListener('pause', () => {
-    if (previousVideoState.paused !== true) {
-      set(ref(db, 'videoState'), {
-        paused: true,
-        currentTime: videoPlayer.currentTime
-      }).catch((error) => {
-        console.error('Error updating video state on pause:', error);
-      });
-
-      previousVideoState = { paused: true, currentTime: videoPlayer.currentTime }; // Update the previous state
-    }
-  });
-
-  videoPlayer.addEventListener('timeupdate', () => {
-    // Only send the current time to Firebase if it has changed significantly (e.g., more than 1 second)
-    if (Math.abs(videoPlayer.currentTime - previousVideoState.currentTime) > 1) {
-      set(ref(db, 'videoState'), {
-        paused: videoPlayer.paused,
-        currentTime: videoPlayer.currentTime
-      }).catch((error) => {
-        console.error('Error updating video state on timeupdate:', error);
-      });
-
-      previousVideoState = { paused: videoPlayer.paused, currentTime: videoPlayer.currentTime }; // Update the previous state
-    }
-  });
-
-  // Listen for video state updates from Firebase
-  onValue(ref(db, 'videoState'), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      const { paused, currentTime } = data;
-
-      // Only update the video player if the state is different from the current state
-      if (paused !== videoPlayer.paused) {
-        if (paused) {
-          videoPlayer.pause();
-        } else {
-          videoPlayer.play();
-        }
-        previousVideoState.paused = paused; // Update local state
-      }
-
-      // If the current time is different from the local state, update the video position
-      if (Math.abs(currentTime - videoPlayer.currentTime) > 1) {
-        videoPlayer.currentTime = currentTime;
-        previousVideoState.currentTime = currentTime; // Update local state
+    // Function to check if 'Enter' is pressed to send message
+    window.checkEnter = function checkEnter(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
       }
     }
-  });
 
-<<<<<<< HEAD
-  // Handle user removal from Firebase on tab/window close
-  window.addEventListener('unload', function() {
-  if (userName) {
-    remove(ref(db, `users/${userName}`)).catch((error) => {
-      console.error('Error removing user from Firebase on unload:', error);
-    });
+    // Function to send and display emotes
+ // Function to send and display emotes
+ window.addEmote = function addEmote(emote) {
+  // Send emote to Firebase with timestamp to identify the latest one
+  push(ref(db, 'emotes'), {
+    emote: emote,
+    userName: userName,
+    timestamp: Date.now()
+  });
+};
+
+// Listen for new emoticons and display only the latest one on all devices
+onValue(ref(db, 'emotes'), function(snapshot) {
+  const data = snapshot.val();
+  const chatMessagesDiv = document.getElementById('chat-messages'); // Assuming you have a container for emoticons
+
+  // Remove previous emoticons
+  const existingEmotes = document.querySelectorAll('.emote');
+  existingEmotes.forEach(emote => emote.remove());
+
+  // Find the most recent emote by timestamp
+  let latestEmote = null;
+  for (let key in data) {
+    latestEmote = data[key]; // Get the latest emote (by timestamp)
+  }
+
+  if (latestEmote) {
+    // Create the emote element
+    const emoteElement = document.createElement('span');
+    emoteElement.textContent = latestEmote.emote;
+    emoteElement.classList.add('emote');
+    document.body.appendChild(emoteElement);
+
+    // Apply floating effect (same as your existing code)
+    emoteElement.style.position = 'absolute';
+    emoteElement.style.fontSize = '100px';
+    emoteElement.style.transition = 'none';
+    emoteElement.style.opacity = '1';
+
+    // Random positioning
+    const maxX = window.innerWidth - 100;
+    const maxY = window.innerHeight - 200;
+    const randomX = Math.random() * maxX;
+    const randomY = Math.random() * maxY;
+
+    emoteElement.style.left = `${randomX}px`;
+    emoteElement.style.top = `${randomY}px`;
+
+    // Re-enable transition for floating effect
+    emoteElement.offsetHeight;
+    emoteElement.style.transition = 'transform 1s, opacity 1s';
+
+    setTimeout(() => {
+      emoteElement.style.transform = 'translateY(-100px)';
+      emoteElement.style.opacity = '0';
+    }, 10);
+
+    setTimeout(() => {
+      document.body.removeChild(emoteElement);
+    }, 1000);
   }
 });
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> parent of 225a902 (set and remove user)
-=======
->>>>>>> parent of e5c3ef0 (Revert "set and remove user")
 
 
->>>>>>> parent of 225a902 (set and remove user)
-</script>
+// First, initialize the video player element
+const videoPlayer = document.getElementById('videoPlayer');
+
+// Initialize a variable to track the previous state of the video
+let previousVideoState = { paused: videoPlayer.paused, currentTime: videoPlayer.currentTime };
+
+// Send video state to Firebase only when it changes
+videoPlayer.addEventListener('play', () => {
+  if (previousVideoState.paused !== false) {
+    set(ref(db, 'videoState'), {
+      paused: false,
+      currentTime: videoPlayer.currentTime
+    }).catch((error) => {
+      console.error('Error updating video state on play:', error);
+    });
+
+    previousVideoState = { paused: false, currentTime: videoPlayer.currentTime }; // Update the previous state
+  }
+});
+
+videoPlayer.addEventListener('pause', () => {
+  if (previousVideoState.paused !== true) {
+    set(ref(db, 'videoState'), {
+      paused: true,
+      currentTime: videoPlayer.currentTime
+    }).catch((error) => {
+      console.error('Error updating video state on pause:', error);
+    });
+
+    previousVideoState = { paused: true, currentTime: videoPlayer.currentTime }; // Update the previous state
+  }
+});
+
+videoPlayer.addEventListener('timeupdate', () => {
+  // Only send the current time to Firebase if it has changed significantly (e.g., more than 1 second)
+  if (Math.abs(videoPlayer.currentTime - previousVideoState.currentTime) > 1) {
+    set(ref(db, 'videoState'), {
+      paused: videoPlayer.paused,
+      currentTime: videoPlayer.currentTime
+    }).catch((error) => {
+      console.error('Error updating video state on timeupdate:', error);
+    });
+
+    previousVideoState = { paused: videoPlayer.paused, currentTime: videoPlayer.currentTime }; // Update the previous state
+  }
+});
+
+// Listen for video state updates from Firebase
+onValue(ref(db, 'videoState'), (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    const { paused, currentTime } = data;
+
+    // Only update the video player if the state is different from the current state
+    if (paused !== videoPlayer.paused) {
+      if (paused) {
+        videoPlayer.pause();
+      } else {
+        videoPlayer.play();
+      }
+      previousVideoState.paused = paused; // Update local state
+    }
+
+    // If the current time is different from the local state, update the video position
+    if (Math.abs(currentTime - videoPlayer.currentTime) > 1) {
+      videoPlayer.currentTime = currentTime;
+      previousVideoState.currentTime = currentTime; // Update local state
+    }
+  }
+});
+
+
+
+  </script>
 
 
 </body>
