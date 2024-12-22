@@ -75,6 +75,7 @@
     const db = getDatabase(app);  // Initialize Realtime Database
 
 
+
   // Variables to keep track of the user's name
   let userName = localStorage.getItem('userName');
 
@@ -86,6 +87,16 @@
     document.getElementById('name-section').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
     updateUserList();
+    // Ensure the user is added again after page reload
+    const userRef = ref(db, `users/${userName}`);
+    userRef.once('value', (snapshot) => {
+      if (!snapshot.exists()) {
+        // If the user doesn't exist in the database, add them
+        set(userRef, { name: userName }).catch((error) => {
+          console.error("Error adding user to Firebase:", error);
+        });
+      }
+    });
   }
 
   // Function to set the user's name and hide the name input section
@@ -97,9 +108,12 @@
       document.getElementById('main-content').style.display = 'block';
 
       // Add user to Firebase /users node
-      set(ref(db, `users/${userName}`), {
+      const userRef = ref(db, `users/${userName}`);
+      set(userRef, {
         name: userName
       }).then(() => {
+        // Set onDisconnect to remove the user when they disconnect
+        userRef.onDisconnect().remove();
         updateUserList(); // Update the user list after adding the user to Firebase
       }).catch((error) => {
         console.error("Error adding user to Firebase:", error);
@@ -118,6 +132,13 @@
     });
   }
 
+  // Listen for window/tab unload to clean up
+  window.addEventListener('beforeunload', () => {
+    if (userName) {
+      const userRef = ref(db, `users/${userName}`);
+      userRef.onDisconnect().remove(); // Ensure user is removed on disconnect
+    }
+  });
 
   // Function to send a chat message
   window.sendMessage = function sendMessage() {
@@ -312,8 +333,6 @@
     });
   }
 });
-
-
 </script>
 
 
