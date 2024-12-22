@@ -78,34 +78,15 @@
   // Variables to keep track of the user's name
   let userName = localStorage.getItem('userName');
 
+  // Check if the user has already entered their name
   if (!userName) {
-  document.getElementById('name-section').style.display = 'flex';
-  document.getElementById('main-content').style.display = 'none';
-} else {
-  document.getElementById('name-section').style.display = 'none';
-  document.getElementById('main-content').style.display = 'block';
-
-  // Check if the user is already in the Firebase users node before updating
-  const userRef = ref(db, `users/${userName}`);
-  userRef.get().then((snapshot) => {
-    if (!snapshot.exists()) {
-      // Add user to Firebase if not already added
-      set(userRef, {
-        name: userName
-      }).then(() => {
-        userRef.onDisconnect().remove();
-        updateUserList(); // Update the user list after adding the user to Firebase
-      }).catch((error) => {
-        console.error("Error adding user to Firebase:", error);
-      });
-    } else {
-      // If the user already exists, just update the list
-      updateUserList();
-    }
-  }).catch((error) => {
-    console.error("Error checking user in Firebase:", error);
-  });
-}
+    document.getElementById('name-section').style.display = 'flex';
+    document.getElementById('main-content').style.display = 'none';
+  } else {
+    document.getElementById('name-section').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    updateUserList();
+  }
 
 // Set the user's name and handle disconnect properly
 window.setName = function setName() {
@@ -326,9 +307,7 @@ window.setName = function setName() {
     }
   });
 
-  window.onbeforeunload = function() {
-  localStorage.removeItem('userName');
-};
+
 
 </script>
 
