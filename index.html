@@ -305,11 +305,13 @@
   });
 
   // Handle user removal from Firebase on tab/window close
-  window.onbeforeunload = function() {
+  window.addEventListener('unload', function() {
   if (userName) {
-    remove(ref(db, `users/${userName}`));
+    remove(ref(db, `users/${userName}`)).catch((error) => {
+      console.error('Error removing user from Firebase on unload:', error);
+    });
   }
-};
+});
 
 
 </script>
