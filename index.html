@@ -19,7 +19,7 @@
     <!-- Video Player Section -->
     <div class="video-container">
       <video id="videoPlayer" controls>
-        <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+        <source src="./Back.to.the.Future.1985.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
     </div>
@@ -49,6 +49,235 @@
         </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
+    import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtdFvQmqBgb7cZ2Jl6kplxpcqtZrU4Cqk",
+      authDomain: "movietheater001-4e8c6.firebaseapp.com",
+      projectId: "movietheater001-4e8c6",
+      storageBucket: "movietheater001-4e8c6.firebasestorage.app",
+      messagingSenderId: "285886982565",
+      appId: "1:285886982565:web:c7305961e16f4fb249604c",
+      measurementId: "G-D1BCRQNZXQ"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getDatabase(app);  // Initialize Realtime Database
+
+    // Variables to keep track of the user's name and current chat participants
+    let userName = localStorage.getItem('userName');
+    let usersInChat = userName ? [userName] : [];
+
+    // Check if the user has already entered their name
+    if (!userName) {
+      document.getElementById('name-section').style.display = 'flex';
+      document.getElementById('main-content').style.display = 'none';
+    } else {
+      document.getElementById('name-section').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      updateUserList();
+    }
+
+    // Function to set the user's name and hide the name input section
+    function setName() {
+      userName = document.getElementById('userName').value.trim();
+      if (userName) {
+        localStorage.setItem('userName', userName);
+        document.getElementById('name-section').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        usersInChat.push(userName);
+        updateUserList();
+      }
+    }
+
+    // Function to update the user list display
+    function updateUserList() {
+      const chatUsersDiv = document.getElementById('chat-users');
+      chatUsersDiv.innerHTML = `Users in chat: ${usersInChat.join(', ')}`;
+    }
+
+    // Function to send a chat message
+    window.sendMessage = function sendMessage() {
+      const message = document.getElementById('chatInput').value.trim();
+      if (message) {
+        // Send message to Firebase
+        push(ref(db, 'messages'), {
+          userName: userName,
+          message: message,
+          timestamp: Date.now()
+        });
+
+        // Display the message locally
+        const chatMessagesDiv = document.getElementById('chat-messages');
+        const newMessage = document.createElement('div');
+        const usernameSpan = document.createElement('span');
+        usernameSpan.classList.add('username');
+        usernameSpan.textContent = `${userName}: `;
+        const messageSpan = document.createElement('span');
+        messageSpan.classList.add('message');
+        messageSpan.textContent = message;
+
+        newMessage.appendChild(usernameSpan);
+        newMessage.appendChild(messageSpan);
+        chatMessagesDiv.appendChild(newMessage);
+
+        document.getElementById('chatInput').value = '';
+        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+      }
+    };
+
+    // Listen for new messages in Firebase
+    onValue(ref(db, 'messages'), function(snapshot) {
+      const data = snapshot.val();
+      const chatMessagesDiv = document.getElementById('chat-messages');
+      chatMessagesDiv.innerHTML = ''; // Clear the chat before re-rendering
+      for (let key in data) {
+        const messageData = data[key];
+        const newMessage = document.createElement('div');
+        const usernameSpan = document.createElement('span');
+        usernameSpan.classList.add('username');
+        usernameSpan.textContent = `${messageData.userName}: `;
+        const messageSpan = document.createElement('span');
+        messageSpan.classList.add('message');
+        messageSpan.textContent = messageData.message;
+
+        newMessage.appendChild(usernameSpan);
+        newMessage.appendChild(messageSpan);
+        chatMessagesDiv.appendChild(newMessage);
+      }
+    });
+
+    // Function to check if 'Enter' is pressed to send message
+    function checkEnter(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    }
+
+    // Function to send and display emotes
+    window.addEmote = function addEmote(emote) {
+      // Send emote to Firebase
+      push(ref(db, 'emotes'), {
+        emote: emote,
+        userName: userName,
+        timestamp: Date.now()
+      });
+
+      // Display the emote locally
+      const emoteElement = document.createElement('span');
+      emoteElement.textContent = emote;
+      emoteElement.classList.add('emote');
+      document.body.appendChild(emoteElement);
+
+      // Apply floating effect (same as your existing code)
+      emoteElement.style.position = 'absolute';
+      emoteElement.style.fontSize = '100px';
+      emoteElement.style.transition = 'none';
+      emoteElement.style.opacity = '1';
+
+      // Random positioning
+      const maxX = window.innerWidth - 100;
+      const maxY = window.innerHeight - 200;
+      const randomX = Math.random() * maxX;
+      const randomY = Math.random() * maxY;
+
+      emoteElement.style.left = `${randomX}px`;
+      emoteElement.style.top = `${randomY}px`;
+
+      // Re-enable transition for floating effect
+      emoteElement.offsetHeight;
+      emoteElement.style.transition = 'transform 1s, opacity 1s';
+
+      setTimeout(() => {
+        emoteElement.style.transform = 'translateY(-100px)';
+        emoteElement.style.opacity = '0';
+      }, 10);
+
+      setTimeout(() => {
+        document.body.removeChild(emoteElement);
+      }, 1000);
+    };
+
+    // Listen for new emoticons
+    onValue(ref(db, 'emotes'), function(snapshot) {
+      const data = snapshot.val();
+      const emoteElement = document.createElement('span');
+      emoteElement.textContent = data.emote;
+      emoteElement.classList.add('emote');
+      document.body.appendChild(emoteElement);
+
+      // Apply floating effect (same as your existing code)
+      emoteElement.style.position = 'absolute';
+      emoteElement.style.fontSize = '100px';
+      emoteElement.style.transition = 'none';
+      emoteElement.style.opacity = '1';
+
+      const maxX = window.innerWidth - 100;
+      const maxY = window.innerHeight - 200;
+      const randomX = Math.random() * maxX;
+      const randomY = Math.random() * maxY;
+
+      emoteElement.style.left = `${randomX}px`;
+      emoteElement.style.top = `${randomY}px`;
+
+      emoteElement.offsetHeight;
+      emoteElement.style.transition = 'transform 1s, opacity 1s';
+
+      setTimeout(() => {
+        emoteElement.style.transform = 'translateY(-100px)';
+        emoteElement.style.opacity = '0';
+      }, 10);
+
+      setTimeout(() => {
+        document.body.removeChild(emoteElement);
+      }, 1000);
+    });
+
+    // Video state handling
+    const videoPlayer = document.getElementById('videoPlayer');
+
+    // Send video state to Firebase
+    videoPlayer.addEventListener('play', () => {
+      set(ref(db, 'videoState'), {
+        paused: false,
+        currentTime: videoPlayer.currentTime
+      });
+    });
+
+    videoPlayer.addEventListener('pause', () => {
+      set(ref(db, 'videoState'), {
+        paused: true,
+        currentTime: videoPlayer.currentTime
+      });
+    });
+
+    videoPlayer.addEventListener('timeupdate', () => {
+      set(ref(db, 'videoState'), {
+        paused: videoPlayer.paused,
+        currentTime: videoPlayer.currentTime
+      });
+    });
+
+    // Listen for video state updates
+    onValue(ref(db, 'videoState'), (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        videoPlayer.currentTime = data.currentTime;
+        if (data.paused) {
+          videoPlayer.pause();
+        } else {
+          videoPlayer.play();
+        }
+      }
+    });
+  </script>
+
+
 </body>
 </html>
