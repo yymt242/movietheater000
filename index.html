@@ -73,53 +73,37 @@
     const analytics = getAnalytics(app);
     const db = getDatabase(app);  // Initialize Realtime Database
 
-  // Variables to keep track of the user's name and current chat participants
-  let userName = localStorage.getItem('userName');
-  let usersInChat = userName ? [userName] : [];
+    // Variables to keep track of the user's name and current chat participants
+    let userName = localStorage.getItem('userName');
+    let usersInChat = userName ? [userName] : [];
 
-  // Check if the user has already entered their name
-  if (!userName) {
-    document.getElementById('name-section').style.display = 'flex';
-    document.getElementById('main-content').style.display = 'none';
-  } else {
-    document.getElementById('name-section').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    updateUserList();
-  }
-
-  // Function to set the user's name and hide the name input section
-  window.setName = function setName() {
-    userName = document.getElementById('userName').value.trim();
-    if (userName) {
-      localStorage.setItem('userName', userName);
+    // Check if the user has already entered their name
+    if (!userName) {
+      document.getElementById('name-section').style.display = 'flex';
+      document.getElementById('main-content').style.display = 'none';
+    } else {
       document.getElementById('name-section').style.display = 'none';
       document.getElementById('main-content').style.display = 'block';
-      usersInChat.push(userName);
       updateUserList();
     }
-  }
 
-  // Function to update the user list display
-  window.updateUserList = function updateUserList() {
-    // Update usersInChat in Firebase
-    set(ref(db, 'usersInChat'), usersInChat)
-      .catch((error) => {
-        console.error('Error updating user list:', error);
-      });
-
-    // Update the local display of the user list
-    const chatUsersDiv = document.getElementById('chat-users');
-    chatUsersDiv.innerHTML = `Users in chat: ${usersInChat.join(', ')}`;
-  }
-
-  // Listen for updates to the usersInChat list in Firebase
-  onValue(ref(db, 'usersInChat'), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      usersInChat = data; // Update the local usersInChat list with the data from Firebase
-      updateUserList(); // Update the display on this device
+    // Function to set the user's name and hide the name input section
+    window.setName = function setName() {
+      userName = document.getElementById('userName').value.trim();
+      if (userName) {
+        localStorage.setItem('userName', userName);
+        document.getElementById('name-section').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        usersInChat.push(userName);
+        updateUserList();
+      }
     }
-  });
+
+    // Function to update the user list display
+    window.updateUserList = function updateUserList() {
+      const chatUsersDiv = document.getElementById('chat-users');
+      chatUsersDiv.innerHTML = `Users in chat: ${usersInChat.join(', ')}`;
+    }
 
  // Function to send a chat message
 window.sendMessage = function sendMessage() {
