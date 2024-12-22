@@ -159,8 +159,8 @@ onValue(ref(db, 'messages'), function(snapshot) {
 
     // Function to send and display emotes
  // Function to send and display emotes
-window.addEmote = function addEmote(emote) {
-  // Send emote to Firebase
+ window.addEmote = function addEmote(emote) {
+  // Send emote to Firebase with timestamp to identify the latest one
   push(ref(db, 'emotes'), {
     emote: emote,
     userName: userName,
@@ -168,17 +168,25 @@ window.addEmote = function addEmote(emote) {
   });
 };
 
-// Listen for new emoticons and display them on all devices
+// Listen for new emoticons and display only the latest one on all devices
 onValue(ref(db, 'emotes'), function(snapshot) {
   const data = snapshot.val();
+  const chatMessagesDiv = document.getElementById('chat-messages'); // Assuming you have a container for emoticons
 
-  // Loop through all emotes and create them
+  // Remove previous emoticons
+  const existingEmotes = document.querySelectorAll('.emote');
+  existingEmotes.forEach(emote => emote.remove());
+
+  // Find the most recent emote by timestamp
+  let latestEmote = null;
   for (let key in data) {
-    const emoteData = data[key];
+    latestEmote = data[key]; // Get the latest emote (by timestamp)
+  }
 
+  if (latestEmote) {
     // Create the emote element
     const emoteElement = document.createElement('span');
-    emoteElement.textContent = emoteData.emote;
+    emoteElement.textContent = latestEmote.emote;
     emoteElement.classList.add('emote');
     document.body.appendChild(emoteElement);
 
@@ -212,43 +220,67 @@ onValue(ref(db, 'emotes'), function(snapshot) {
   }
 });
 
-    // Video state handling
-    const videoPlayer = document.getElementById('videoPlayer');
 
-    // Send video state to Firebase
-    videoPlayer.addEventListener('play', () => {
-      set(ref(db, 'videoState'), {
-        paused: false,
-        currentTime: videoPlayer.currentTime
-      });
+
+// Initialize a variable to track the previous state of the video
+let previousVideoState = { paused: videoPlayer.paused, currentTime: videoPlayer.currentTime };
+
+// Video state handling
+const videoPlayer = document.getElementById('videoPlayer');
+
+// Send video state to Firebase only when it changes
+videoPlayer.addEventListener('play', () => {
+  if (previousVideoState.paused !== false) {
+    set(ref(db, 'videoState'), {
+      paused: false,
+      currentTime: videoPlayer.currentTime
     });
+    previousVideoState = { paused: false, currentTime: videoPlayer.currentTime }; // Update the previous state
+  }
+});
 
-    videoPlayer.addEventListener('pause', () => {
-      set(ref(db, 'videoState'), {
-        paused: true,
-        currentTime: videoPlayer.currentTime
-      });
+videoPlayer.addEventListener('pause', () => {
+  if (previousVideoState.paused !== true) {
+    set(ref(db, 'videoState'), {
+      paused: true,
+      currentTime: videoPlayer.currentTime
     });
+    previousVideoState = { paused: true, currentTime: videoPlayer.currentTime }; // Update the previous state
+  }
+});
 
-    videoPlayer.addEventListener('timeupdate', () => {
-      set(ref(db, 'videoState'), {
-        paused: videoPlayer.paused,
-        currentTime: videoPlayer.currentTime
-      });
+videoPlayer.addEventListener('timeupdate', () => {
+  // Only send the current time to Firebase if it has changed significantly
+  if (Math.abs(videoPlayer.currentTime - previousVideoState.currentTime) > 1) {
+    set(ref(db, 'videoState'), {
+      paused: videoPlayer.paused,
+      currentTime: videoPlayer.currentTime
     });
+    previousVideoState = { paused: videoPlayer.paused, currentTime: videoPlayer.currentTime }; // Update the previous state
+  }
+});
 
-    // Listen for video state updates
-    onValue(ref(db, 'videoState'), (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        videoPlayer.currentTime = data.currentTime;
-        if (data.paused) {
-          videoPlayer.pause();
-        } else {
-          videoPlayer.play();
-        }
+// Listen for video state updates
+onValue(ref(db, 'videoState'), (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    // If the current state is different from the Firebase state, update the video
+    if (data.paused !== videoPlayer.paused) {
+      if (data.paused) {
+        videoPlayer.pause();
+      } else {
+        videoPlayer.play();
       }
-    });
+    }
+
+    // If the current time is different from the Firebase state, update the video position
+    if (Math.abs(data.currentTime - videoPlayer.currentTime) > 1) {
+      videoPlayer.currentTime = data.currentTime;
+    }
+  }
+});
+
+
   </script>
 
 
