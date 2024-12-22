@@ -88,7 +88,7 @@
     }
 
     // Function to set the user's name and hide the name input section
-    function setName() {
+    window.setName = function setName() {
       userName = document.getElementById('userName').value.trim();
       if (userName) {
         localStorage.setItem('userName', userName);
@@ -100,7 +100,7 @@
     }
 
     // Function to update the user list display
-    function updateUserList() {
+    window.updateUserList = function updateUserList() {
       const chatUsersDiv = document.getElementById('chat-users');
       chatUsersDiv.innerHTML = `Users in chat: ${usersInChat.join(', ')}`;
     }
