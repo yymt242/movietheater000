@@ -19,11 +19,14 @@
   <!-- All other content (hidden initially) -->
   <div id="main-content" class="main-content" style="display:none;">
     <!-- Video Player Section -->
-    <iframe id="youtubePlayer" type="text/html" width=100% height=40%
-    src="https://www.youtube.com/embed/SZyZEoX4G0w?enablejsapi=1&autoplay=0"
-    frameborder="0"></iframe>
-    <h2> Movie: The Ghost Bride  </h2>
-    <h2> Watching on: Dec 25th 2024 </h2>
+    <div class="video-container">
+      <video id="videoPlayer" controls>
+        <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    <h2> Movie: Back To The Future (1985) </h2>
+    <h2> Watching on: ... </h2>
 
 
 
@@ -85,7 +88,7 @@
     }
 
     // Function to set the user's name and hide the name input section
-    window.setName = function setName() {
+    function setName() {
       userName = document.getElementById('userName').value.trim();
       if (userName) {
         localStorage.setItem('userName', userName);
@@ -218,52 +221,76 @@ onValue(ref(db, 'emotes'), function(snapshot) {
 });
 
 
-// Initialize the YouTube player
-let youtubePlayer;
+// First, initialize the video player element
+const videoPlayer = document.getElementById('videoPlayer');
 
-function onYouTubeIframeAPIReady() {
-  youtubePlayer = new YT.Player('youtubePlayer', {
-    events: {
-      'onStateChange': onPlayerStateChange
-    }
-  });
-}
+// Initialize a variable to track the previous state of the video
+let previousVideoState = { paused: videoPlayer.paused, currentTime: videoPlayer.currentTime };
 
-function onPlayerStateChange(event) {
-  const state = event.data; // PLAYING = 1, PAUSED = 2, ENDED = 0
-  if (state === YT.PlayerState.PLAYING) {
-    firebase.database().ref('videoState').set({
+// Send video state to Firebase only when it changes
+videoPlayer.addEventListener('play', () => {
+  if (previousVideoState.paused !== false) {
+    set(ref(db, 'videoState'), {
       paused: false,
-      currentTime: youtubePlayer.getCurrentTime()
+      currentTime: videoPlayer.currentTime
+    }).catch((error) => {
+      console.error('Error updating video state on play:', error);
     });
-  } else if (state === YT.PlayerState.PAUSED) {
-    firebase.database().ref('videoState').set({
-      paused: true,
-      currentTime: youtubePlayer.getCurrentTime()
-    });
-  }
-}
 
-// Listen for state changes and update the YouTube player
-firebase.database().ref('videoState').on('value', (snapshot) => {
+    previousVideoState = { paused: false, currentTime: videoPlayer.currentTime }; // Update the previous state
+  }
+});
+
+videoPlayer.addEventListener('pause', () => {
+  if (previousVideoState.paused !== true) {
+    set(ref(db, 'videoState'), {
+      paused: true,
+      currentTime: videoPlayer.currentTime
+    }).catch((error) => {
+      console.error('Error updating video state on pause:', error);
+    });
+
+    previousVideoState = { paused: true, currentTime: videoPlayer.currentTime }; // Update the previous state
+  }
+});
+
+videoPlayer.addEventListener('timeupdate', () => {
+  // Only send the current time to Firebase if it has changed significantly (e.g., more than 1 second)
+  if (Math.abs(videoPlayer.currentTime - previousVideoState.currentTime) > 1) {
+    set(ref(db, 'videoState'), {
+      paused: videoPlayer.paused,
+      currentTime: videoPlayer.currentTime
+    }).catch((error) => {
+      console.error('Error updating video state on timeupdate:', error);
+    });
+
+    previousVideoState = { paused: videoPlayer.paused, currentTime: videoPlayer.currentTime }; // Update the previous state
+  }
+});
+
+// Listen for video state updates from Firebase
+onValue(ref(db, 'videoState'), (snapshot) => {
   const data = snapshot.val();
   if (data) {
     const { paused, currentTime } = data;
 
-    if (paused !== youtubePlayer.getPlayerState() === YT.PlayerState.PAUSED) {
+    // Only update the video player if the state is different from the current state
+    if (paused !== videoPlayer.paused) {
       if (paused) {
-        youtubePlayer.pauseVideo();
+        videoPlayer.pause();
       } else {
-        youtubePlayer.playVideo();
+        videoPlayer.play();
       }
+      previousVideoState.paused = paused; // Update local state
     }
 
-    if (Math.abs(currentTime - youtubePlayer.getCurrentTime()) > 1) {
-      youtubePlayer.seekTo(currentTime);
+    // If the current time is different from the local state, update the video position
+    if (Math.abs(currentTime - videoPlayer.currentTime) > 1) {
+      videoPlayer.currentTime = currentTime;
+      previousVideoState.currentTime = currentTime; // Update local state
     }
   }
 });
-
 
 
 
