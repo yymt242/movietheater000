@@ -105,7 +105,7 @@
     }
 
     // Function to set the user's name and hide the name input section
-    function setName() {
+    window.setName = function setName() {
       userName = document.getElementById('userName').value.trim();
       if (userName) {
         localStorage.setItem('userName', userName);
