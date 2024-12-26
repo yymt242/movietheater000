@@ -159,7 +159,7 @@ input[type="text"] {
   border-radius: 20px;
   border: 1px solid #ccc;
   background-color: #fafafa;
-  margin: 8px;
+  margin: 8px 0px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
