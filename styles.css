@@ -10,17 +10,7 @@ h2 {
   font-size: 26px;
   font-style: italic;
   color: #ffeb3b;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  animation: glow 1.5s infinite alternate;
-}
-
-@keyframes glow {
-  from {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 10px #ffeb3b, 0 0 20px #ffeb3b, 0 0 30px #ffeb3b;
-  }
-  to {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 20px #ffeb3b, 0 0 30px #ffeb3b, 0 0 40px #ffeb3b;
-  }
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 20px #ffeb3b, 0 0 30px #ffeb3b, 0 0 40px #ffeb3b;
 }
 
 #watching {
@@ -139,16 +129,7 @@ video {
   margin-right: 10px;
   transition: color 0.3s ease;
   font-style: italic;
-  animation: glow-small 3s infinite alternate;
-}
-
-@keyframes glow-small {
-  from {
-    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8), 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff;
-  }
-  to {
-    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8), 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #00ffff;
-  }
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8), 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #00ffff;
 }
 
 .chat-messages div span.username:hover {
